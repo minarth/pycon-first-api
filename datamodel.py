@@ -20,8 +20,8 @@ class Product:
 @dataclass
 class ProductClient:
     uid: int
-    client_id: int
-    product_id: int
+    client_uid: int
+    product_uid: int
     params: dict
 
 
