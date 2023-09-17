@@ -3,7 +3,7 @@ from typing_extensions import Annotated
 from fastapi import FastAPI, Query, HTTPException
 from pydantic import BaseModel
 
-from datamodel import Client, Product, ProductClient, ClientRepository, ProductRepository, ProductClientRepository
+from datamodel import Client, ClientRepository, ProductRepository, ProductClientRepository
 
 app = FastAPI()
 client_repo = ClientRepository()
