@@ -76,16 +76,47 @@ async def get_client_balance(client_uid: int, product_uid: int):
             
     return balances
 
-
-
 # POST metoda   (businesově vytvářím transakci)
 # přijímá ODKUD, KAM, KOLIK   (ID účtu, ID účtu, float)
 # kontroluje dostatečné množství peněz na účtu ODKUD
 # provede transakci v datamodelu
 
+class TransferInputModel(BaseModel):
+    uid_from: int
+    uid_to: int
+    amount: float
 
 
+@app.post("/send-money")
+async def send_money(transfer: TransferInputModel):
+    # TODO - vs _
+    # TODO better return
+    # 
+    if transfer.uid_from not in prod_client_repo.data:
+        raise HTTPException(status_code=404, 
+                detail=f"Account with ID `{transfer.uid_from}` not found")
+    
+    if transfer.uid_to not in prod_client_repo.data:
+        raise HTTPException(status_code=404, 
+                detail=f"Account with ID `{transfer.uid_to}` not found")
 
+    if prod_client_repo.data[transfer.uid_from].params["balance"] < transfer.amount:
+        raise HTTPException(status_code=404, 
+                detail=f"Account with ID `{transfer.uid_from}` has not enough money")
+
+    prod_client_repo.data[transfer.uid_from].params["balance"] -= transfer.amount
+    prod_client_repo.data[transfer.uid_to].params["balance"] += transfer.amount
+
+    return transfer
+
+
+@app.delete("/clients/{client_uid}")
+async def get_client(client_uid: int):
+    if client_uid not in client_repo.data:
+        raise HTTPException(status_code=404, 
+                detail=f"Client with ID `{client_uid}` not found")
+    del client_repo.data[client_uid]
+    return None
 
 
 

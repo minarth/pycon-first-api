@@ -158,6 +158,34 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "Transfer",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"uid_from\": 100, \n    \"uid_to\": 101,\n    \"amount\": 50.0\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8000/send-money/",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"send-money",
+						""
+					]
+				}
+			},
+			"response": []
 		}
 	]
 }
