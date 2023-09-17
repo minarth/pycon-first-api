@@ -1,19 +1,14 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
-from datamodel import Client, ClientRepository, ProductRepository, ProductClientRepository
+from datamodel import Client, Product, \
+    ClientRepository, ProductRepository, ProductClientRepository
 
 app = FastAPI()
 
 client_repo = ClientRepository()
 prod_repo = ProductRepository()
 prod_client_repo = ProductClientRepository()
-
-
-class ClientInputModel(BaseModel):
-    first_name: str
-    last_name: str
-
 
 @app.get("/status")
 async def root():
@@ -48,12 +43,26 @@ async def get_product(product_uid: int):
     return prod_repo.data[product_uid]
 
 
+class ClientInputModel(BaseModel):
+    first_name: str
+    last_name: str
+
 @app.post("/clients")
 async def create_client(client_data: ClientInputModel):
     client_repo.add(None, Client(None, 
                                  first_name=client_data.first_name,
                                  last_name=client_data.last_name))
     return client_data
+
+
+class ProductInputModel(BaseModel):
+    name: str
+
+
+@app.post("/products")
+async def create_product(product_data: ProductInputModel):
+    prod_repo.add(None, Product(None, name=product_data.name))
+    return product_data
 
 
 @app.get("/clients/{client_uid}/products/{product_uid}/balance")
@@ -69,7 +78,10 @@ async def get_client_balance(client_uid: int, product_uid: int):
 
 
 
-
+# POST metoda   (businesově vytvářím transakci)
+# přijímá ODKUD, KAM, KOLIK   (ID účtu, ID účtu, float)
+# kontroluje dostatečné množství peněz na účtu ODKUD
+# provede transakci v datamodelu
 
 
 
