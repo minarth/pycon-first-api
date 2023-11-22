@@ -1,11 +1,15 @@
 from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
 
-from datamodel import ClientRepository, ProductRepository
+from datamodel import ClientRepository, ProductRepository, ProductClientRepository
+from datamodel import Product
 
 app = FastAPI()
 
 clients_repo = ClientRepository()
 product_repo = ProductRepository()
+product_client_repo = ProductClientRepository()
+
 
 @app.get("/status")
 async def root():
@@ -47,3 +51,36 @@ async def find_clients(query: str):
             found.append(client)
     
     return {"clients_found": found}
+
+
+# get balance by account id
+
+@app.get("/account/{id_account}")
+async def get_account(id_account: int):
+    if id_account not in product_client_repo.data:
+        raise HTTPException(404, f"Account with `{id_account}` ID not found")
+    return product_client_repo.data[id_account]
+
+
+# get balance client id a product id
+@app.get("/clients/{id_client}/products/{id_product}/balance")
+async def get_account_balance(id_client: int, id_product: int):
+    
+    accounts = {}
+    for id_acc, account in product_client_repo.data.items():
+        if account.client_uid == id_client and account.product_uid == id_product:
+            accounts[id_acc] = account.params
+
+    return accounts
+
+
+class ProductModel(BaseModel):
+    name: str
+
+
+@app.post("/products")
+async def create_product(product: ProductModel):
+    created_product = product_repo.add(None, Product(None, product.name))
+    return created_product
+
+# CREATE new Client
