@@ -1,4 +1,4 @@
-# This module is a abstract model usually replaced by database
+# This module is an abstract model usually replaced by database
 # for sake of simplicity of the example we will keep it in memory
 # and focus on API
 
