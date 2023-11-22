@@ -1,8 +1,10 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel
+from typing_extensions import Annotated
+
 
 from datamodel import ClientRepository, ProductRepository, ProductClientRepository
-from datamodel import Product
+from datamodel import Client, Product
 
 app = FastAPI()
 
@@ -13,7 +15,16 @@ product_client_repo = ProductClientRepository()
 
 @app.get("/status")
 async def root():
-    return {"message": "OK"}
+    import requests
+
+    url = "http://127.0.0.1:8000/status"
+
+    payload = {}
+    headers = {}
+
+    response = requests.request("GET", url, headers=headers, data=payload)
+
+    return {"message": response.text}
 
 
 @app.get("/clients")
@@ -83,4 +94,22 @@ async def create_product(product: ProductModel):
     created_product = product_repo.add(None, Product(None, product.name))
     return created_product
 
+class ClientModel(BaseModel):
+    first_name: Annotated[str, Query(min_length=3, pattern=r"^[a-zA-Z]+$")]
+    last_name: Annotated[str, Query(min_length=3, pattern=r"^[a-zA-Z]+$")]
+
+
 # CREATE new Client
+@app.post("/clients")
+async def create_client(client: ClientModel):
+    return clients_repo.add(None, Client(None, client.first_name, client.last_name))
+
+
+
+@app.delete("/clients/{id_client}")
+async def delete_client(id_client: int):
+    if id_client not in clients_repo.data:
+        raise HTTPException(404, f"Client with `{id_client}` ID not found")
+    del clients_repo.data[id_client]
+
+    return {"status": "OK"}
